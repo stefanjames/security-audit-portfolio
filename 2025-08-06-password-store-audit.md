@@ -1,4 +1,4 @@
-# 🔐 PasswordStore Smart Contract Security Audit Report
+# 🔐 PasswordStore Audit Report
 
 **🧾 Contract Name:** `PasswordStore`  
 **📅 Audit Date:** August 2025  
