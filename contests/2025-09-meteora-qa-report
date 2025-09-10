@@ -1,0 +1,149 @@
+# QA Report – Meteora Dynamic Bonding Curve  
+**Contest:** [Code4rena – Meteora Dynamic Bonding Curve](https://code4rena.com/audits/2025-08-meteora-dynamic-bonding-curve)  
+**Date:** September 2025  
+**Prize Pool:** $104,500 USDC  
+**Submission Type:** QA Report (Low Severity)  
+
+---
+
+## 📌 Overview
+This QA report was submitted as part of the Code4rena competitive audit for the Meteora Dynamic Bonding Curve protocol.  
+The contest scope covered 81 in-scope files across core modules, including admin, creator, partner, swap, initialize pool, migration, math, state, and utils.  
+
+These findings focus on **maintainability, clarity, observability, and developer trust** rather than critical vulnerabilities.  
+
+---
+
+## 🧾 QA Findings
+
+### 1. Hardcoded Admin Addresses Without Documentation
+- **File & Function:** `admin/auth.rs` – `assert_eq_admin`  
+- **Finding (QA):** Hardcoded admin addresses without documentation.  
+- **Impact:** Reduces maintainability and clarity. Future developers may not understand why these specific addresses are hardcoded or how to update them.  
+- **Recommendation:** Add documentation explaining the purpose of these admin addresses and consider making them configurable or well-documented constants.  
+
+---
+
+### 2. Missing Input Validation for Zero Amounts
+- **File & Function:** `admin/ix_claim_protocol_fee.rs` – `handle_claim_protocol_fee`  
+- **Finding (QA):** No validation for zero amounts in `token_base_amount` or `token_quote_amount`.  
+- **Impact:** May lead to unnecessary operations and wasted compute resources.  
+- **Recommendation:** Add validation to skip transfers when amounts are zero.  
+
+---
+
+### 3. Inconsistent Account Naming and Missing Documentation
+- **File & Function:** `admin/ix_withdraw_protocol_surplus.rs` – `handle_protocol_withdraw_surplus`  
+- **Finding (QA):** Uses `virtual_pool` instead of `pool` in account struct; comment “Make sure pool has been completed” is vague.  
+- **Impact:** Reduces consistency and makes intent unclear for developers.  
+- **Recommendation:** Standardize naming (`pool` instead of `virtual_pool`) and clarify documentation.  
+
+---
+
+### 4. Missing Validation for Operator Account
+- **File & Function:** `admin/ix_create_claim_protocol_fee_operator.rs` – `CreateClaimFeeOperatorCtx`  
+- **Finding (QA):** Operator marked as `UncheckedAccount` without validation.  
+- **Impact:** Could allow invalid operator accounts to be created.  
+- **Recommendation:** Add validation to ensure operator is a valid account.  
+
+---
+
+### 5. Complex Function With Multiple Responsibilities
+- **File & Function:** `swap/ix_swap.rs` – `handle_swap_wrapper`  
+- **Finding (QA):** 200+ line function mixes validation, swap processing, fee handling, and migration logic. Also uses magic numbers.  
+- **Impact:** Hard to maintain, debug, or extend.  
+- **Recommendation:** Break into smaller functions and replace magic numbers with named constants.  
+
+---
+
+### 6. Complex Validation Logic With Unclear Errors
+- **File & Function:** `swap/ix_swap.rs` – `validate_single_swap_instruction`  
+- **Finding (QA):** Nested validation logic with generic error messages like “Multiple swaps not allowed.”  
+- **Impact:** Makes debugging difficult for developers and integrators.  
+- **Recommendation:** Simplify logic and add descriptive error messages.  
+
+---
+
+### 7. Missing Bounds Validation for Input Amounts
+- **File & Function:** `swap/swap_exact_in.rs` – `process_swap_exact_in`  
+- **Finding (QA):** No bounds checks on `amount_in`.  
+- **Impact:** Large or unexpected values could cause undefined behavior or wasted compute.  
+- **Recommendation:** Add upper and lower bounds validation.  
+
+---
+
+### 8. Inconsistent Error Handling and Documentation in SafeMath
+- **File & Function:** `math/safe_math.rs` – `SafeMath` trait  
+- **Finding (QA):** All operations return same `PoolError::MathOverflow`; lacks documentation.  
+- **Impact:** Makes debugging failures difficult.  
+- **Recommendation:** Use more specific error codes per operation and add documentation.  
+
+---
+
+### 9. Complex Fee Calculation Logic Without Documentation
+- **File & Function:** `math/fee_math.rs` – `get_fee_in_period`  
+- **Finding (QA):** Implements exponential decay fee calculation without explanation.  
+- **Impact:** Hard to verify correctness or maintain.  
+- **Recommendation:** Add detailed documentation on formulas and parameters.  
+
+---
+
+### 10. Hardcoded Bit Manipulation Logic
+- **File & Function:** `math/fee_math.rs` – `pow`  
+- **Finding (QA):** Uses 19 hardcoded bit operations (`0x1`, `0x2`, `0x4`, etc.).  
+- **Impact:** Reduces readability and maintainability.  
+- **Recommendation:** Replace with loop or more readable construct, and document reasoning.  
+
+---
+
+### 11. Commented-Out Code
+- **File & Function:** `math/u128x128_math.rs` – `mul_div` (commented out)  
+- **Finding (QA):** Large block of commented-out code left in repo.  
+- **Impact:** Clutters codebase, reduces clarity.  
+- **Recommendation:** Remove or clearly explain why it remains.  
+
+---
+
+### 12. Missing Validation and Documentation for sqrt_u256
+- **File & Function:** `math/utils_math.rs` – `sqrt_u256`  
+- **Finding (QA):** Lacks input validation and algorithm explanation.  
+- **Impact:** Hard to understand or trust implementation.  
+- **Recommendation:** Add input checks and document algorithm.  
+
+---
+
+### 13. Inconsistent Parameter Naming and Compatibility Comments
+- **File & Function:** `swap/swap_exact_out.rs` & `swap/swap_partial_fill.rs`  
+- **Finding (QA):** Parameter names inconsistent; “backward compatibility” comments vague.  
+- **Impact:** Confusing for maintainers.  
+- **Recommendation:** Standardize naming and clarify compatibility reasons.  
+
+---
+
+### 14. Redundant Re-Exports in Module Structure
+- **File & Function:** `admin/mod.rs`  
+- **Finding (QA):** Re-exports public functions unnecessarily.  
+- **Impact:** Reduces clarity of API structure.  
+- **Recommendation:** Remove redundant exports or document rationale.  
+
+---
+
+### 15. Minimal Module Documentation
+- **File & Function:** `math/mod.rs`  
+- **Finding (QA):** Provides only basic comments for sub-modules.  
+- **Impact:** Makes it hard to understand how math components interact.  
+- **Recommendation:** Add module-level documentation.  
+
+---
+
+### 16. Incomplete Module Structure in Swap
+- **File & Function:** `swap/mod.rs`  
+- **Finding (QA):** Missing re-exports; unclear organization.  
+- **Impact:** Makes module harder to navigate and use.  
+- **Recommendation:** Re-organize and properly export swap functions.  
+
+---
+
+## 📌 Summary
+These findings highlight issues in **maintainability, consistency, clarity, and documentation**.  
+While not critical vulnerabilities, addressing them will improve developer experience, reduce technical debt, and make the system easier to audit in the future.  
