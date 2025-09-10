@@ -40,7 +40,7 @@ I combine both manual and automated approaches to auditing:
 ---
 
 ## 🏆 Competitive Audit Submissions
-- [Meteora – Dynamic Bonding Curve (Code4rena, Sep 2025)](./contests/Meteora-QA-Report.md) – Submitted QA Report with 16 findings focused on maintainability, clarity, and validation.
+- [Meteora – Dynamic Bonding Curve (Code4rena, Sep 2025)](./contests/2025-09-meteora-qa-report.md) – Submitted QA Report with 16 findings focused on maintainability, clarity, and validation.
 
 ---
 
